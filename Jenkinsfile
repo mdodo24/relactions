@@ -90,20 +90,10 @@ pipeline {
         }
     }
 
-    // post {
-    //     always {
-    //         // Clean up after the build
-    //         sh 'go clean'
-    //         archiveArtifacts artifacts: '**/output-binary-name', allowEmptyArchive: true
-    //         junit 'path-to-test-reports/*.xml'  // If using JUnit-compatible test reports
-    //     }
-
-    //     success {
-    //         echo 'Build completed successfully!'
-    //     }
-
-    //     failure {
-    //         echo 'Build failed!'
-    //     }
-    // }
+    post {
+    always {
+        // Clean up the service account key file
+        sh "rm -f ${env.WORKSPACE}/gcloud-service-key.json"
+    }
+}
 }
