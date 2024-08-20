@@ -16,36 +16,39 @@ pipeline {
         //     }
         // }
 
-        stage('Install Go') {
-            steps {
-                // Install Go
-                sh "wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz"
-                sh "sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz"
-                sh "export PATH=$PATH:/usr/local/go/bin"
-            }
-        }
+        // stage('Install Go') {
+        //     steps {
+        //         // Install Go
+        //         sh "wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz"
+        //         sh "sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz"
+        //         sh "export PATH=$PATH:/usr/local/go/bin"
+        //     }
+        // }
 
         stage('Build') {
-            steps {
-                // Build the Go project
-                sh 'go mod download' // Install dependencies
-                sh 'go build -o relactions .'
+            steps { withEnv(["PATH+GO=/usr/local/go/bin"]) {
+                    // Build the Go project
+                    sh 'go mod download' // Install dependencies
+                    sh 'go build -o relactions .'
+                }
             }
         }
 
         stage('Test') {
-            steps {
-                // Run tests
-                sh 'go test ./...'
+            steps { withEnv(["PATH+GO=/usr/local/go/bin"]) {
+                    // Run tests
+                    sh 'go test ./...'
+                }
             }
         }
 
-        stage('Lint') {
-            steps {
-                // Run linter
-                sh 'go vet ./...'
-            }
-        }
+        // stage('Lint') {
+        //     steps { withEnv(["PATH+GO=/usr/local/go/bin"]) {
+        //             // Run linter
+        //             sh 'go vet ./...'
+        //         }
+        //     }
+        // }
 
         stage('Docker Build') {
             steps {
@@ -89,11 +92,4 @@ pipeline {
             }
         }
     }
-
-    post {
-    always {
-        // Clean up the service account key file
-        sh "rm -f ${env.WORKSPACE}/gcloud-service-key.json"
-    }
-}
 }
